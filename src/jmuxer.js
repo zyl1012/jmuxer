@@ -43,18 +43,18 @@ export default class JMuxmer extends Event {
         this.frameDuration = (1000 / this.options.fps) | 0;
 
         this.node = typeof this.options.node === 'string' ? document.getElementById(this.options.node) : this.options.node;
-    
+
         this.sourceBuffers = {};
         this.isMSESupported = !!window.MediaSource;
-       
+
         if (!this.isMSESupported) {
             throw 'Oops! Browser does not support media source extension.';
         }
 
         this.setupMSE();
-        this.remuxController = new RemuxController(this.options.clearBuffer); 
+        this.remuxController = new RemuxController(this.options.clearBuffer);
         this.remuxController.addTrack(this.options.mode);
-        
+
 
         this.mseReady = false;
         this.lastCleaningTime = Date.now();
@@ -88,7 +88,7 @@ export default class JMuxmer extends Event {
 
         if (!data || !this.remuxController) return;
         duration = data.duration ? parseInt(data.duration) : 0;
-        if (data.video) {  
+        if (data.video) {
             nalus = H264Parser.extractNALu(data.video);
             if (nalus.length > 0) {
                 chunks.video = this.getVideoFrames(nalus, duration);
@@ -121,7 +121,7 @@ export default class JMuxmer extends Event {
         for (nalu of nalus) {
             naluObj = new NALU(nalu);
             units.push(naluObj);
-            if (naluObj.type() === NALU.IDR || naluObj.type() === NALU.NDR) {
+            if (naluObj.type() === NALU.IDR || naluObj.type() === NALU.NDR || naluObj.type() === NALU.SPS  || naluObj.type() === NALU.PPS) {
                 samples.push({units});
                 units = [];
                 if (this.options.clearBuffer) {
@@ -132,7 +132,7 @@ export default class JMuxmer extends Event {
                 }
             }
         }
-        
+
         if (duration) {
             sampleDuration = duration / samples.length | 0;
             adjustDuration = (duration - (sampleDuration * samples.length));
@@ -265,7 +265,7 @@ export default class JMuxmer extends Event {
                 return keyframePoint >= adjacentOffset;
             });
         }
-        
+
         return maxLimit;
     }
 

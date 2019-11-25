@@ -42,7 +42,7 @@ export default class RemuxController extends Event {
         if (!this.initialized) {
             if (this.isReady()) {
                 this.dispatch('ready');
-                for (let type of this.trackTypes) { 
+                for (let type of this.trackTypes) {
                     let track = this.tracks[type];
                     let data = {
                         type: type,
@@ -53,7 +53,8 @@ export default class RemuxController extends Event {
                 debug.log('Initial segment generated.');
                 this.initialized = true;
             }
-        } else {
+        } else if(this.isReady()){
+            this.dispatch('ready');
             for (let type of this.trackTypes) {
                 let track = this.tracks[type];
                 let pay = track.getPayload();
